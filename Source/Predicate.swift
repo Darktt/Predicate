@@ -278,7 +278,7 @@ extension Predicate
                 
                 case .equalTo, .greaterThan, .greaterThanOrEqualTo, .lessThan, .lessThenOrEqualTo, .notEqualTo, .beginWith, .in:
                     return true
-
+                
                 default:
                     return false
             }

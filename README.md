@@ -24,29 +24,29 @@ final class User: NSObject {
 }
 ```
 
-2) 建立 Predicate 並取得 `NSPredicate`
+2) 建立 Predicate（內部會組成 `NSPredicate`）
 ```swift
 // 等於
 let p1 = Predicate<User, Int>(\User.age).equalTo(18)
-let ns1 = p1.nsPredicate // format: "age == 18"
+// 內部格式類似："age == 18"
 
 // 比大小
 let p2 = Predicate<User, Int>(\User.age).greaterThanOrEqualTo(21)
-let ns2 = p2.nsPredicate // format: "age >= 21"
+// 內部格式類似："age >= 21"
 
 // IN
 let p3 = Predicate<User, String>(\User.name).in(["Alice", "Bob"]) 
-let ns3 = p3.nsPredicate // format: "name IN {\"Alice\", \"Bob\"}"
+// 內部格式類似："name IN {\"Alice\", \"Bob\"}"
 
 // BEGINSWITH 與大小寫不敏感旗標 [c]
 let p4 = Predicate<User, String>(\User.name).beginWith("ed", insensitive: [.caseInsensitive])
-let ns4 = p4.nsPredicate // format: "name BEGINSWITH[c] \"ed\""
+// 內部格式類似："name BEGINSWITH[c] \"ed\""
 ```
 
 3) 評估資料
 ```swift
 let user = User(name: "Eden", age: 18, tags: ["swift"]) 
-let ok = p1.nsPredicate.evaluate(with: user) // true
+let ok = p1.evaluate(with: user) // true
 ```
 
 ### 集合量詞與否定
@@ -56,9 +56,9 @@ let ok = p1.nsPredicate.evaluate(with: user) // true
 let notAge10 = Predicate<User, Int>.not(\User.age).equalTo(10)
 let nsNot = notAge10.nsPredicate // "NOT age == 10"
 
-// ANY/ALL/NONE（對集合 KeyPath 前綴量詞）
-let anyBegins = Predicate<[String], String>.some(\Array<String>.Element).beginWith("pro", insensitive: [.caseInsensitive])
-let nsAny = anyBegins.nsPredicate // "ANY SELF BEGINSWITH[c] \"pro\""
+// ANY/ALL/NONE（對集合屬性加量詞）
+let anyBegins = Predicate<User, String>.some(\User.tags).beginWith("pro", insensitive: [.caseInsensitive])
+// 內部格式類似："ANY tags BEGINSWITH[c] \"pro\""
 ```
 
 說明：

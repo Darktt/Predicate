@@ -91,4 +91,23 @@ class PredicateTests: XCTestCase
         let p2 = Predicate<User, Int>.not(\User.age).equalTo(9)
         XCTAssertTrue(p2.evaluate(with: user))
     }
+    
+//    func test_chain_multiple_operators()
+//    {
+//        let user = User(name: "Eden", age: 25, tags: [])
+//        
+//        let p = Predicate<User, Int>(\User.age)
+//            .greaterThan(18)
+//            .lessThan(30)
+//            .notEqualTo(20)
+//        
+//        XCTAssertTrue(p.evaluate(with: user))
+//        
+//        let p2 = Predicate<User, Int>(\User.age)
+//            .greaterThan(18)
+//            .lessThan(24)
+//            .notEqualTo(20)
+//        
+//        XCTAssertFalse(p2.evaluate(with: user))
+//    }
 }
