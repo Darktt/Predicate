@@ -115,7 +115,7 @@ struct Predicate<Root, Value>
     // MARK: Predicate Operators
     
     public
-    func equalTo(_ value: Value) -> Predicate
+    func equalTo(_ value: Value) -> Predicate where Value: Equatable
     {
         self.actionStack.append(.equalTo(value))
         
@@ -123,7 +123,7 @@ struct Predicate<Root, Value>
     }
     
     public
-    func greaterThan(_ value: Value) -> Predicate
+    func greaterThan(_ value: Value) -> Predicate where Value: Comparable
     {
         self.actionStack.append(.greaterThan(value))
         
@@ -131,7 +131,7 @@ struct Predicate<Root, Value>
     }
     
     public
-    func greaterThanOrEqualTo(_ value: Value) -> Predicate
+    func greaterThanOrEqualTo(_ value: Value) -> Predicate where Value: Comparable
     {
         self.actionStack.append(.greaterThanOrEqualTo(value))
         
@@ -139,7 +139,7 @@ struct Predicate<Root, Value>
     }
     
     public
-    func lessThan(_ value: Value) -> Predicate
+    func lessThan(_ value: Value) -> Predicate where Value: Comparable
     {
         self.actionStack.append(.lessThan(value))
         
@@ -147,7 +147,7 @@ struct Predicate<Root, Value>
     }
     
     public
-    func lessThenOrEqualTo(_ value: Value) -> Predicate
+    func lessThenOrEqualTo(_ value: Value) -> Predicate where Value: Comparable
     {
         self.actionStack.append(.lessThenOrEqualTo(value))
         
@@ -155,7 +155,7 @@ struct Predicate<Root, Value>
     }
     
     public
-    func notEqualTo(_ value: Value) -> Predicate
+    func notEqualTo(_ value: Value) -> Predicate where Value: Equatable
     {
         self.actionStack.append(.notEqualTo(value))
         
@@ -171,9 +171,33 @@ struct Predicate<Root, Value>
     }
     
     public
+    func contains(_ value: Value, insensitive operators: Set<InsensitivityOperator> = []) -> Predicate
+    {
+        self.actionStack.append(.contains(value, operators: operators))
+        
+        return self
+    }
+    
+    public
+    func endWith(_ value: Value, insensitive operators: Set<InsensitivityOperator> = []) -> Predicate
+    {
+        self.actionStack.append(.endWith(value, operators: operators))
+        
+        return self
+    }
+    
+    public
     func `in`(_ values: Array<Value>) -> Predicate
     {
         self.actionStack.append(.in(values))
+        
+        return self
+    }
+    
+    public
+    func like(_ value: Value) -> Predicate
+    {
+        self.actionStack.append(.like(value))
         
         return self
     }
@@ -228,47 +252,6 @@ struct Predicate<Root, Value>
     }
 }
 
-extension Predicate
-{
-    fileprivate
-    enum Action
-    {
-        case normal(_ keyPath: KeyPath<Root, Value>)
-        
-        case not(_ keyPath: KeyPath<Root, Value>)
-        
-        case some(_ keyPath: KeyPath<Root, Value>)
-        
-        case all(_ keyPath: KeyPath<Root, Value>)
-        
-        case none(_ keyPath: KeyPath<Root, Value>)
-        
-        case equalTo(_ value: Value)
-        
-        case greaterThan(_ value: Value)
-        
-        case greaterThanOrEqualTo(_ value: Value)
-        
-        case lessThan(_ value: Value)
-        
-        case lessThenOrEqualTo(_ value: Value)
-        
-        case notEqualTo(_ value: Value)
-        
-        case beginWith(_ value: Value, operators: Set<InsensitivityOperator>)
-        
-        case `in`(_ values: Array<Value>)
-    }
-    
-    public
-    enum InsensitivityOperator : Character
-    {
-        case caseInsensitive = "c"
-        
-        case diacriticInsensitive = "d"
-    }
-}
-
 // MARK: - Private Methods -
 
 private
@@ -316,7 +299,7 @@ extension Predicate
             
             switch action {
                 
-                case .equalTo, .greaterThan, .greaterThanOrEqualTo, .lessThan, .lessThenOrEqualTo, .notEqualTo, .beginWith, .in:
+            case .equalTo, .greaterThan, .greaterThanOrEqualTo, .lessThan, .lessThenOrEqualTo, .notEqualTo, .beginWith, .contains, .endWith, .in, .like:
                     return true
                 
                 default:
@@ -355,17 +338,112 @@ extension Predicate
             case .in(let values):
                 return ("\(prefix)\(key) IN %@", [values as Any])
                 
+            case .like(let value):
+                return ("\(prefix)\(key) LIKE %@", [value as Any])
+                
             case .beginWith(let value, let operators):
                 let optionString: String = {
+                    
                     if operators.isEmpty { return "" }
-                    let flags = operators.map { String($0.rawValue) }.sorted().joined()
+                    
+                    let flags = operators.map {
+                        
+                            String($0.rawValue)
+                        }
+                        .sorted()
+                        .joined()
+                    
                     return "[\(flags)]"
                 }()
+                
                 return ("\(prefix)\(key) BEGINSWITH\(optionString) %@", [value as Any])
+            
+            case .contains(let value, let operators):
+                let optionString: String = {
+                    
+                    if operators.isEmpty { return "" }
+                    
+                    let flags = operators.map {
+                        
+                            String($0.rawValue)
+                        }
+                        .sorted()
+                        .joined()
+                    
+                    return "[\(flags)]"
+                }()
+                
+                return ("\(prefix)\(key) CONTAINS\(optionString) %@", [value as Any])
+            
+            case .endWith(let value, let operators):
+                let optionString: String = {
+                    
+                    if operators.isEmpty { return "" }
+                    
+                    let flags = operators.map {
+                        
+                            String($0.rawValue)
+                        }
+                        .sorted()
+                        .joined()
+                    
+                    return "[\(flags)]"
+                }()
+                
+                return ("\(prefix)\(key) ENDSWITH\(optionString) %@", [value as Any])
                 
             default:
                 return ("TRUEPREDICATE", [])
         }
+    }
+}
+
+// MARK: - Types -
+
+extension Predicate
+{
+    fileprivate
+    enum Action
+    {
+        case normal(_ keyPath: KeyPath<Root, Value>)
+        
+        case not(_ keyPath: KeyPath<Root, Value>)
+        
+        case some(_ keyPath: KeyPath<Root, Value>)
+        
+        case all(_ keyPath: KeyPath<Root, Value>)
+        
+        case none(_ keyPath: KeyPath<Root, Value>)
+        
+        case equalTo(_ value: Value)
+        
+        case greaterThan(_ value: Value)
+        
+        case greaterThanOrEqualTo(_ value: Value)
+        
+        case lessThan(_ value: Value)
+        
+        case lessThenOrEqualTo(_ value: Value)
+        
+        case notEqualTo(_ value: Value)
+        
+        case beginWith(_ value: Value, operators: Set<InsensitivityOperator>)
+        
+        case contains(_ value: Value, operators: Set<InsensitivityOperator>)
+        
+        case endWith(_ value: Value, operators: Set<InsensitivityOperator>)
+        
+        case `in`(_ values: Array<Value>)
+        
+        case like(_ value: Value)
+    }
+    
+    public
+    enum InsensitivityOperator : Character
+    {
+        case caseInsensitive = "c"
+        
+        case diacriticInsensitive = "d"
     }
 }
 
