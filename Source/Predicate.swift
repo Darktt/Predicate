@@ -16,7 +16,7 @@ struct Predicate<Root, Value>
     private
     let actionStack: ActionStack<Root, Value>
     
-    private
+    internal
     var nsPredicate: NSPredicate {
         
         let (format, arguments) = self.buildPredicateFormat()
@@ -176,6 +176,46 @@ struct Predicate<Root, Value>
         self.actionStack.append(.in(values))
         
         return self
+    }
+    
+    public
+    func and<OtherValue>(_ predicate: Predicate<Root, OtherValue>) -> AndPredicate<Root>
+    {
+        let andPredicate = AndPredicate(target: self, predicate)
+        
+        return andPredicate
+    }
+    
+    public
+    func and(_ predicate: any CompoundPredicate) -> AndPredicate<Root>
+    {
+        let andPredicate = AndPredicate(target: self, predicate)
+        
+        return andPredicate
+    }
+    
+    public
+    func or<OtherValue>(_ predicate: Predicate<Root, OtherValue>) -> OrPredicate<Root>
+    {
+        let orPredicate = OrPredicate(target: self, predicate)
+        
+        return orPredicate
+    }
+    
+    public
+    func or(_ predicate: any CompoundPredicate) -> OrPredicate<Root>
+    {
+        let orPredicate = OrPredicate(target: self, predicate)
+        
+        return orPredicate
+    }
+    
+    public
+    func not() -> NotPredicate<Root>
+    {
+        let notPredicate = NotPredicate(target: self)
+        
+        return notPredicate
     }
     
     public

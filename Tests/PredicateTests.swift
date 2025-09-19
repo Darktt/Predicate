@@ -92,22 +92,44 @@ class PredicateTests: XCTestCase
         XCTAssertTrue(p2.evaluate(with: user))
     }
     
-//    func test_chain_multiple_operators()
-//    {
-//        let user = User(name: "Eden", age: 25, tags: [])
-//        
-//        let p = Predicate<User, Int>(\User.age)
-//            .greaterThan(18)
-//            .lessThan(30)
-//            .notEqualTo(20)
-//        
-//        XCTAssertTrue(p.evaluate(with: user))
-//        
-//        let p2 = Predicate<User, Int>(\User.age)
-//            .greaterThan(18)
-//            .lessThan(24)
-//            .notEqualTo(20)
-//        
-//        XCTAssertFalse(p2.evaluate(with: user))
-//    }
+    func test_chain_multiple_operators()
+    {
+        let users = [
+            User(name: "Eden", age: 25, tags: ["Swift"]),
+            User(name: "Alice", age: 20, tags: ["Kotlin"]),
+            User(name: "Bob", age: 30, tags: ["Dart"]),
+        ]
+        
+        let predicate = Predicate(\User.age)
+                            .greaterThan(20)
+                            .and(
+                                Predicate(\User.tags).in([["Swift"], ["Dart"]])
+                            )
+                            .or(
+                                Predicate(\User.name).beginWith("B", insensitive: [.caseInsensitive])
+                            )
+        
+        XCTAssertTrue(users.filter({ predicate.evaluate(with: $0) }).isEmpty == false)
+    }
+    
+    func test_and_not_and_operator()
+    {
+        let users = [
+            User(name: "Eden", age: 25, tags: ["Swift"]),
+            User(name: "Alice", age: 20, tags: ["Kotlin"]),
+            User(name: "Bob", age: 30, tags: ["Dart"]),
+        ]
+        
+        let predicate = Predicate(\User.age)
+                            .lessThan(28)
+                            .and(Predicate(\User.tags).in([["Kotlin"]]).not())
+        
+        let filtered = users.filter({ predicate.evaluate(with: $0) })
+        
+        XCTAssertTrue(filtered.isEmpty == false)
+        
+        let user = filtered.first!
+        
+        XCTAssertEqual(user.name, "Eden")
+    }
 }
