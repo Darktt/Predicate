@@ -1,4 +1,6 @@
 ## Predicate
+[![Swift-6.2](https://img.shields.io/badge/Swift-6.2-red.svg?style=plastic&logo=Swift&logoColor=white&link=)](https://developer.apple.com/swift/)
+[![example workflow](https://github.com/Darktt/Predicate/actions/workflows/main.yml/badge.svg)]()
 
 型別安全的條件組裝器，將 Swift `KeyPath` 與直覺的比對 API 組裝成條件，支援以 `evaluate(with:)` 在記憶體中过濾資料（例如陣列）。
 
