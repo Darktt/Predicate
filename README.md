@@ -85,6 +85,26 @@ let user = User(name: "Eden", age: 18, tags: ["swift"])
 let ok = p1.evaluate(with: user) // true
 ```
 
+4) 陣列過濾（新增功能）
+```swift
+let users = [
+    User(name: "Eden", age: 25, tags: ["Swift"]),
+    User(name: "Alice", age: 20, tags: ["Kotlin"]),
+    User(name: "Bob", age: 30, tags: ["Dart"]),
+]
+
+// 直接使用 filter(by:) 過濾陣列
+let adults = users.filter(by: Predicate(\User.age).greaterThanOrEqualTo(21))
+// 結果：Eden, Bob
+
+// 支援複合條件
+let complexFilter = users.filter(by: 
+    Predicate(\User.age).greaterThan(20)
+        .and(Predicate(\User.name).beginWith("E", insensitive: [.caseInsensitive]))
+)
+// 結果：Eden
+```
+
 
 ### 集合量詞與否定
 - 使用量詞/否定對集合屬性或一般屬性加上前綴：
@@ -146,9 +166,10 @@ let filtered = users.filter { p2.evaluate(with: $0) }
 ### API 導覽速查
 - `Predicate<Root, Value>(\Root.keyPath)`：以 KeyPath 建立條件起點。
 - 量詞/否定起點：`some/any/all/none/not` 搭配 KeyPath。
-- 比較/字串/集合：`equalTo`, `notEqualTo`, `> >= < <=`, `beginWith(_:insensitive:)`, ``in(_:)``。
+- 比較/字串/集合：`equalTo`, `notEqualTo`, `> >= < <=`, `beginWith(_:insensitive:)`, `contains(_:insensitive:)`, `endWith(_:insensitive:)`, `like(_:)`, ``in(_:)``。
 - 複合邏輯：鏈式 `.and(_:)`、`.or(_:)`，末端可 `.not()` 反轉。
 - 執行：`.evaluate(with:)` 在記憶體直接測試。
+- 陣列過濾：`Array.filter(by:)` 直接使用 `Predicate` 或 `CompoundPredicate` 過濾。
 
 ### 注意事項
 - KVC 鍵路徑：`NSPredicate` 依賴 KVC 字串，請確保模型屬性能被 KVC 解析。最簡單做法是讓模型繼承 `NSObject` 並用 `@objc dynamic` 宣告欲比對的屬性。
@@ -170,3 +191,4 @@ swift test
 - `LIKE`（支援 `*`/`?` 萬用字元）
 - `NOT` 前綴與 `.not()` 複合否定
 - 多條件串接 `AND` / `OR`
+- 陣列過濾 `Array.filter(by:)`

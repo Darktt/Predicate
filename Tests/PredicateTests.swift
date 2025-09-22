@@ -148,7 +148,7 @@ class PredicateTests: XCTestCase
                                 Predicate(\User.name).beginWith("B", insensitive: [.caseInsensitive])
                             )
         
-        XCTAssertTrue(users.filter({ predicate.evaluate(with: $0) }).isEmpty == false)
+        XCTAssertTrue(users.filter(by: predicate).isEmpty == false)
     }
     
     func test_and_not_and_operator()
@@ -163,7 +163,7 @@ class PredicateTests: XCTestCase
                             .lessThan(28)
                             .and(Predicate(\User.tags).in([["Kotlin"]]).not())
         
-        let filtered = users.filter({ predicate.evaluate(with: $0) })
+        let filtered = users.filter(by: predicate)
         
         XCTAssertTrue(filtered.isEmpty == false)
         
