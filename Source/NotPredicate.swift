@@ -44,30 +44,3 @@ struct NotPredicate<Root>: CompoundPredicate
         return result
     }
 }
-
-// MARK: - NotPredicate.Subpredicates -
-
-public
-extension NotPredicate
-{
-    fileprivate
-    class Subpredicates
-    {
-        // MARK: - Properties -
-        
-        fileprivate
-        var subpredicates: [NSPredicate] = []
-        
-        // MARK: - Methods -
-        // MARK: Initial Method
-        
-        fileprivate
-        init() { }
-        
-        fileprivate
-        func append(_ predicate: NSPredicate)
-        {
-            self.subpredicates.append(predicate)
-        }
-    }
-}
