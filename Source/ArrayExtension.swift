@@ -2,7 +2,7 @@
 //  ArrayExtension.swift
 //  Predicate
 //
-//  Created by Eden on 2025/9/22.
+//  Created by Darktt on 2025/9/22.
 //
 
 import Foundation

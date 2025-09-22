@@ -2,7 +2,7 @@
 //  AndPredicate.swift
 //  Predicate
 //
-//  Created by Eden on 2025/9/19.
+//  Created by Darktt on 2025/9/19.
 //
 
 import Foundation
